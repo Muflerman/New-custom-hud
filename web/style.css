@@ -1,0 +1,479 @@
+/* =========================================================
+   FUENTES
+   ========================================================= */
+@import url('https://fonts.cdnfonts.com/css/tt-autonomous-trl');
+@import url('https://fonts.cdnfonts.com/css/obised');
+
+/* =========================================================
+   BASE / NUI
+   ========================================================= */
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: none;                 /* La NUI controla la visibilidad */
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================================================
+   HUD DEL JUGADOR (abajo-izquierda)
+   ========================================================= */
+#player-hud-container {
+  position: absolute;
+  left: 14px;                    /* ⬅️➡️ mueve todo el HUD jugador */
+  bottom: 30px;                  /* ⬆️⬇️ mueve todo el HUD jugador */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 1000;
+}
+
+/* Tile individual */
+.hud-field {
+  position: relative;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 3px;
+  border: 1px solid rgba(38, 37, 37, 0.85);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Icono centrado — blanco muy brillante */
+.hud-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+  filter: brightness(1.6) contrast(1.3)
+          drop-shadow(0 0 6px rgba(255,255,255,.95))
+          drop-shadow(0 0 12px rgba(255,255,255,.65));
+}
+
+/* Barra de relleno vertical (0–100%) */
+#health, #armor, #thirst, #hunger, #stamina, #stress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--fill, 0%);
+  transition: height .35s ease;
+  z-index: 1;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+/* Colores de cada barra */
+#health  { background: #984248; }
+#armor   { background: rgba(24, 27, 187, 0.55); }
+#thirst  { background: #1389c4; }
+#hunger  { background: #1888a0; }
+#stamina { background: rgba(116, 116, 116, 0.75); }
+#stress  { background: #ed959b; }
+
+/* Animación del icono de STRESS cuando hay estrés */
+#stress-container.moving .hud-icon{
+  animation: stress-wiggle var(--stress-speed, 1.2s) ease-in-out infinite;
+}
+
+/* El keyframe incluye el translate(-50%,-50%) para no perder el centrado */
+@keyframes stress-wiggle{
+  0%   { transform: translate(-50%, -50%) rotate(0deg)    scale(1); }
+  25%  { transform: translate(-50%, -52%) rotate(-6deg)   scale(1.03); }
+  50%  { transform: translate(-50%, -50%) rotate(0deg)    scale(1); }
+  75%  { transform: translate(-50%, -48%) rotate(6deg)    scale(1.03); }
+  100% { transform: translate(-50%, -50%) rotate(0deg)    scale(1); }
+}
+
+
+/* =========================================================
+   INDICADOR TALK (arriba-izquierda)
+   ========================================================= */
+#talk-indicator {
+  position: absolute;
+  top: 12px;                     /* ⬆️⬇️ mover TALK */
+  right: 14px;                   /* ⬅️➡️ mover TALK */
+  padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 4px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  display: none;                 /* Se muestra al hablar */
+  z-index: 1200;
+}
+
+/* =========================================================
+   HUD DE VEHÍCULO
+   ========================================================= */
+#vehicle-hud-container {
+  display: none;
+  position: absolute;
+  left: 1600px;                  /* ⬅️➡️ mover HUD vehículo (tu valor) */
+  bottom: 84px;                  /* ⬆️⬇️ mover HUD vehículo (tu valor) */
+  width: 300px;
+  height: 140px;
+  color: #fff;
+  font-family: 'TT Autonomous Trl', sans-serif;
+}
+
+
+
+/* Oculta la L antigua por compatibilidad si aún existe en el DOM */
+#fuel-L { display: none !important; }  /* FIX: había duplicado; se deja solo uno */
+
+/* Nuevo indicador de combustible */
+#fuel-indicator {
+  position: absolute;
+  left: 170px;
+  bottom: 50px;             /* posición relativa al velocímetro */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 6px;
+}
+
+/* Icono surtidor */
+#fuel-icon {
+  font-size: 12px;
+  color: #f1f1ed;            /* amarillo HUD */
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+}
+
+/* Texto del porcentaje */
+#fuel-percent {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: #fff;
+}
+
+/* Aviso de poco combustible */
+#fuel-indicator.low #fuel-percent { color: #ff4d4d; }
+#fuel-indicator.low #fuel-icon    { color: #ff4d4d; filter: drop-shadow(0 0 6px rgba(255,77,77,.6)); }
+#fuel-indicator.low { animation: fuel-blink 1s infinite; }
+@keyframes fuel-blink { 0%,70%{opacity:1} 71%,100%{opacity:.6} }
+
+/* Dígitos: ceros grises + valor blanco */
+#speed {
+  position: absolute;
+  left: 14px;
+  bottom: 15px;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+#speed .speed-zeroes { color: rgba(255,255,255,.35); font-weight: 400; }
+#speed .speed-value  { color: #fff; font-weight: 800;
+  text-shadow:
+    0 0 2px #ffffffa0,
+    0 0 2px rgba(255,255,255,.48),
+    0 0 2px rgba(255,255,255,.43);
+}
+
+/* Unidades (KMH/MPH) */
+#speed-type {
+  position: absolute;
+  left: 175px;
+  bottom: 24px;
+  font-size: 12px;
+  opacity: .9;
+  letter-spacing: .5px;
+}
+
+/* ----- Barra segmentada = ACELERADOR ----- */
+#throttle-bar {
+  --seg-width: 12px;             /* ancho de segmento */
+  --seg-gap:  3px;               /* separación */
+  position: absolute;
+  left: 20px;
+  bottom: 5px;
+  width: 150px;                   /* ↔️ ancho total barra */
+  height: 10px;                   /* ↕️ alto barra */
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+#throttle-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(var(--seg-width) - var(--seg-gap)),
+    rgba(255,255,255,.12) calc(var(--seg-width) - var(--seg-gap)),
+    rgba(255,255,255,.12) var(--seg-width)
+  );
+  pointer-events: none;
+}
+#throttle-fill {
+  height: 100%;
+  width: var(--throttle, 0%);     /* actualizado desde JS (0–100%) */
+  transition: width .2s linear, background-color .15s ease;
+  background: #f8f8f8;           /* cian (normal) */
+  -webkit-mask: repeating-linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(var(--seg-width) - var(--seg-gap)),
+    transparent calc(var(--seg-width) - var(--seg-gap)),
+    transparent var(--seg-width)
+  );
+          mask: repeating-linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(var(--seg-width) - var(--seg-gap)),
+    transparent calc(var(--seg-width) - var(--seg-gap)),
+    transparent var(--seg-width)
+  );
+  border-radius: 4px 0 0 4px;
+  box-shadow: none;
+}
+
+/* Estado amarillo (warning) */
+#throttle-fill.warn {
+  background: #ffd60a;
+  box-shadow:
+    0 0 6px rgba(255,214,10,.55),
+    inset 0 0 6px rgba(255,214,10,.35);
+}
+
+/* Estado rojo (critico) */
+#throttle-fill.crit {
+  background: #ff4d4d;
+  box-shadow:
+    0 0 6px rgba(255,77,77,.6),
+    inset 0 0 6px rgba(255,77,77,.4);
+}
+
+
+/* ----- Tira de marchas (1–5) ----- */
+#gear-strip {
+  position: absolute;
+  left: -25px;
+  top: 45px;
+  display: flex;
+  gap: 8px; /* espacio entre números */
+  align-items: center;
+  padding: 4px 8px; /* caja más grande */
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 6px;
+  transform: scale(0.5); /* 🔹 1.0 = normal, >1 = más grande, <1 = más pequeño */
+}
+
+#gear-strip .gear-seg {
+  min-width: 10px;   /* ancho mínimo de cada número */
+  padding: 4px 6px;  /* espacio interno de cada número */
+  font-size: 12px;   /* tamaño de fuente */
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  border-radius: 4px;
+}
+
+#gear-strip .gear-seg.active {
+  color: #001018;
+  background: #b5b7b8;
+  box-shadow:
+    0 0 8px rgba(177, 179, 179, 0.65) inset,
+    0 0 6px rgba(178, 180, 180, 0.45);
+}
+
+/* =========================================================
+   CONTENEDOR APARTE: ESTADO (Cinturón + Motor)
+   ========================================================= */
+
+/* COMENTADO: bloque contenedor de estado (cinturón/motor)
+#status-hud-container{
+  position: absolute;
+  left: 1775px;
+  bottom: 150px;
+  z-index: 1500;
+}
+*/
+
+#status-strip{
+  display: flex;
+  gap: 6px;
+}
+
+/* COMENTADO: cápsula + iconos de estado (cinturón/motor)
+.status-pill{
+  width: 28px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 6px;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 8px,
+    rgba(255, 255, 255, 0) 8px,
+    rgba(255, 255, 255, 0) 12px
+  );
+}
+.status-pill img{
+  width: 12px;
+  height: 12px;
+  opacity: .9;
+  filter: brightness(1.25) drop-shadow(0 0 3px rgba(255,255,255,.35));
+}
+.status-pill.ok{
+  border-color: rgba(17,207,227,.7);
+  box-shadow:
+    inset 0 0 8px rgba(17,207,227,.30),
+    0 0 6px rgba(17,207,227,.30);
+}
+.status-pill.warn{
+  border-color: rgba(255,77,77,.7);
+  box-shadow:
+    inset 0 0 8px rgba(255,77,77,.35),
+    0 0 6px rgba(255,77,77,.35);
+}
+@keyframes status-blink { 0%,60%{opacity:1} 61%,100%{opacity:.35} }
+.status-pill.warn { animation: status-blink .9s infinite; }
+*/
+
+/* COMENTADO: Seatbelt (cinturón) — todos los overrides
+#status-seatbelt img {
+  filter: brightness(0) invert(1) drop-shadow(0 0 3px rgba(255,255,255,.35)) !important;
+  opacity: 1 !important;
+}
+#seatbelt-icon{
+  font-size: 14px;   line-height: 1;
+  color: #fff;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.35));
+}
+#status-seatbelt img{ display: none !important; }
+#status-seatbelt #seatbelt-icon{ display: block; }
+.status-pill.ok #seatbelt-icon   { color: #11cfe3; }
+.status-pill.warn #seatbelt-icon { color: #ff4d4d; animation: status-blink .9s infinite; }
+*/
+
+/* COMENTADO: Engine (motor) — todos los overrides
+#status-engine img {
+  width: 12px;
+  height: 12px;
+  opacity: .95;
+  filter: brightness(1.25) drop-shadow(0 0 3px rgba(255,255,255,.35));
+}
+#status-engine.ok {
+  border-color: rgba(17,207,227,.7);
+  box-shadow:
+    inset 0 0 8px rgba(17,207,227,.30),
+    0 0 6px rgba(17,207,227,.30);
+}
+#status-engine.warn {
+  border-color: rgba(255,77,77,.7);
+  box-shadow:
+    inset 0 0 8px rgba(255,77,77,.35),
+    0 0 6px rgba(255,77,77,.35);
+  animation: status-blink .9s infinite;
+}
+#status-engine.warn img {
+  filter:
+    brightness(1) saturate(4)
+    drop-shadow(0 0 4px rgba(255,77,77,.8))
+    invert(14%) sepia(97%) saturate(7483%) hue-rotate(352deg) brightness(98%) contrast(110%);
+}
+*/
+
+/* 📍 Calle (visible solo en vehículo) */
+#street-wrap{
+  position: fixed;
+  left: 1600px;         /* ⬅️➡️ mover bloque */
+  bottom: 50px;      /* ⬆️⬇️ mover bloque */
+  display: none;      /* oculto por defecto */
+  z-index: 3000;
+  pointer-events: none;
+  align-items: center;
+  gap: 10px;          /* espacio entre chip y texto */
+}
+body.veh-active:not(.ui-blocked) #street-wrap{ display:flex !important;
+}
+
+/* Chip cuadrado con icono */
+#street-chip{
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(0,0,0,.75);
+  border: 1px solid rgba(255,255,255,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(255,255,255,.15), inset 0 0 6px rgba(255,255,255,.06);
+}
+#street-chip i{
+  font-size: 12px;
+  color: #ffffff;
+  line-height: 1;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.35));
+}
+
+/* Texto de la calle (estilo “Popular Street”) */
+#street-name{
+  font-family: 'TT Autonomous Trl', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: #ffffff;
+  letter-spacing: .3px;
+  text-shadow:
+    0 0 2px rgba(255,255,255,.45),
+    0 0 6px rgba(255,255,255,.25);
+}
+
+
+/* ===== Marco del minimapa (movible por variables) ===== */
+:root{
+  /* Posición y tamaño (ajústalos a tu gusto) */
+  --mm-frame-left:   10px;   /* ⬅️➡️ */
+  --mm-frame-bottom: 66px;   /* ⬆️⬇️ */
+  --mm-frame-width:  295px;  /* ↔️ */
+  --mm-frame-height: 217px;  /* ↕️ */
+
+  /* Estilo del marco */
+  --mm-frame-color: #21212181;
+  --mm-frame-thickness: 3px;
+  --mm-frame-radius: 8px;     
+  --mm-frame-glow: 0 0 10px rgba(65, 66, 67, 0.292);
+}
+
+/* Oculto por defecto */
+#minimap-frame{
+  display: none;             /* 🚫 oculto si NO hay vehículo */
+  position: fixed;
+  left:   var(--mm-frame-left);
+  bottom: var(--mm-frame-bottom);
+  width:  var(--mm-frame-width);
+  height: var(--mm-frame-height);
+
+  border: var(--mm-frame-thickness) solid var(--mm-frame-color);
+  border-radius: var(--mm-frame-radius);
+  box-shadow: var(--mm-frame-glow);
+
+  background: transparent;
+  pointer-events: none;
+  z-index: 2400;
+}
+
+/* Visible solo cuando el body tiene la clase veh-active */
+body.veh-active:not(.ui-blocked) #minimap-frame{ display:block !important; }
+

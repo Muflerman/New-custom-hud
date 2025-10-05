@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <title>MU HUD</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Bootstrap Icons (se mantiene: el icono de combustible lo usa) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  </head>
+  <body>
+    <!-- 🔹 HUD del jugador (solo rediseño visual) -->
+    <div id="player-hud-container">
+      <!-- icono “destacado” estilo corazón -->
+      <div id="health-container" class="hud-field">
+        <img src="https://img.icons8.com/ios/50/ffffff/heart-with-pulse.png" class="hud-icon" alt="Health">
+        <div id="health"></div>
+      </div>
+      <!-- aparece solo si > 0 (lógica ya en JS) -->
+      <div id="armor-container" class="hud-field" style="display:none;">
+        <img src="https://img.icons8.com/ios/50/ffffff/shield.png" class="hud-icon" alt="Armor">
+        <div id="armor"></div>
+      </div>
+      <div id="hunger-container" class="hud-field">
+        <img src="https://img.icons8.com/ios/50/ffffff/restaurant.png" class="hud-icon" alt="Hunger">
+        <div id="hunger"></div>
+      </div>
+      <div id="thirst-container" class="hud-field">
+        <img src="https://img.icons8.com/ios/50/ffffff/water-bottle.png" class="hud-icon" alt="Thirst">
+        <div id="thirst"></div>
+      </div>
+      <div id="stamina-container" class="hud-field">
+        <img src="https://img.icons8.com/ios/50/ffffff/running.png" class="hud-icon" alt="Stamina">
+        <div id="stamina"></div>
+      </div>
+      <div id="stress-container" class="hud-field">
+        <img src="https://img.icons8.com/ios/50/ffffff/brain.png" class="hud-icon" alt="Stress">
+        <div id="stress"></div>
+      </div>
+      <!-- barra inferior estilo ejemplo (cian) -->
+      <div id="player-bottom-bar">
+        <div id="player-bottom-fill"></div>
+      </div>
+    </div>
+    <!-- 🔊 TALK -->
+    <div id="talk-indicator">TALK</div>
+    <!-- 🚗 HUD Vehículo (INTACTO salvo calles/dirección, solo estilo) -->
+    <div id="vehicle-hud-container">
+      <div id="speed-wrap">
+        <!-- ⛽ Combustible: icono amarillo + % -->
+        <div id="fuel-indicator" class="fuel-inline">
+          <i class="bi bi-fuel-pump" id="fuel-icon"></i>
+          <span id="fuel-percent">0%</span>
+        </div>
+        <!-- Velocímetro -->
+        <div id="speed">
+          <span class="speed-zeroes">000</span><span class="speed-value"></span>
+        </div>
+        <div id="speed-type">KM/H</div>
+        <!-- 🧰 Barra segmentada = Acelerador -->
+        <div id="throttle-bar">
+          <div id="throttle-fill"></div>
+        </div>
+      </div>
+      <!-- Tira de marchas (1–5) -->
+      <div id="gear-strip">
+        <span class="gear-seg" data-g="1">1</span>
+        <span class="gear-seg" data-g="2">2</span>
+        <span class="gear-seg" data-g="3">3</span>
+        <span class="gear-seg" data-g="4">4</span>
+        <span class="gear-seg" data-g="5">5</span>
+      </div>
+      <!-- 📍 Calle actual (icono + texto) -->
+      <div id="street-wrap" aria-hidden="true">
+        <div id="street-chip">
+          <i class="bi bi-geo-alt-fill"></i>
+        </div>
+        <div id="street-name"> </div>
+      </div>
+      <div id="gear"></div> <!-- compatibilidad -->
+    </div>
+    <!-- 🧷 CONTENEDOR APARTE: Estado Cinturón + Motor (COMENTADO) -->
+    <!--
+    <div id="status-hud-container">
+      <div id="status-strip">
+        <div id="status-seatbelt" class="status-pill" title="Seatbelt">
+          <i class="bi bi-shield-lock" id="seatbelt-icon"></i>
+        </div>
+        <div id="status-engine" class="status-pill" title="Engine">
+          <img src="https://img.icons8.com/ios/50/ffffff/engine.png" alt="Engine">
+        </div>
+      </div>
+    </div>
+    -->
+    <!-- Marco movible del minimapa -->
+    <div id="minimap-frame" aria-hidden="true"></div>
+  </body>
+</html>
